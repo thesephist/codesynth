@@ -6,7 +6,7 @@ Generate music from your source code! You can try it live at [codesynth.surge.sh
 - [Torus](https://github.com/thesephist/torus) for the player and UI
 - [paper.css](https://github.com/thesephist/paper.css) for a lightweight visual style
 
-![Codesynth screenshot](assets/screenshot.png)
+![Codesynth screenshot](static/img/screenshot.png)
 
 ## How does it work?
 
