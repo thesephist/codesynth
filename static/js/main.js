@@ -135,10 +135,8 @@ fn main() {
     let scalex = (cxmax - cxmin) / img_side as f32;
     let scaley = (cymax - cymin) / img_side as f32;
 
-    // Create a new ImgBuf
     let mut imgbuf = image::ImageBuffer::new(img_side, img_side);
 
-    // Calculate for each pixel
     for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
         let cx = cxmin + x as f32 * scalex;
         let cy = cymin + y as f32 * scaley;
@@ -158,13 +156,12 @@ fn main() {
         *pixel = image::Luma([i as u8]);
     }
 
-    // Save image
     imgbuf.save("fractal.png").unwrap();
 }`,
 }];
 
-
-const Scale = [
+// Pentatonic A scale
+const SCALE = [
     440,
     495,
     556.875,
@@ -175,33 +172,32 @@ const Scale = [
     2 * 556.875,
     2 * 660,
     2 * 742.5,
+    4 * 440,
+    4 * 495,
+    4 * 556.875,
+    4 * 660,
+    4 * 742.5,
 ];
 
-function gcd(a, b) {
-    if (a >= b) {
-        const tmp = a;
-        a = b;
-        b = tmp;
-    }
-
-    let R;
-    while ((a % b) > 0)  {
-        R = a % b;
-        a = b;
-        b = R;
-    }
-    return b;
-}
-
+// greatest common divisor of numbers, used to automatically
+// infer the tab width
 function gcds(numbers) {
-    const uniqs = [...new Set(numbers).values()];
+    const uniqs = [...new Set(numbers).values()].sort((a, b) => a - b);
     if (uniqs[0] === 0)  {
         uniqs.shift();
     }
     if (!uniqs.length) {
         return 2;
     }
-    return uniqs.reduce(gcd, uniqs[0]);
+    return uniqs.reduce((a, b) => {
+        let R;
+        while ((a % b) > 0)  {
+            R = a % b;
+            a = b;
+            b = R;
+        }
+        return b;
+    }, uniqs[0]);
 }
 
 function debounce(fn, delayMillis) {
@@ -222,14 +218,16 @@ function debounce(fn, delayMillis) {
     }
 }
 
+// Get note on pentatonic scale, bounded by max note
 function pentatonic(index) {
-    if (index < Scale.length) {
-        return Scale[index];
+    if (index < SCALE.length) {
+        return SCALE[index];
     }
 
-    return Scale[Scale.length - 1];
+    return SCALE[SCALE.length - 1];
 }
 
+// repeat the string ss, n times
 function times(ss, n) {
     let s = '';
     while (n -- > 0) {
@@ -280,7 +278,7 @@ class Player {
     constructor() {
         this.ctx = new AudioContext();
         this.oscillator = this.ctx.createOscillator();
-        this.oscillator.type = 'sine';
+        this.oscillator.type = 'triangle';
         this.oscillator.connect(this.ctx.destination);
 
         this.stopped = false;
@@ -343,7 +341,6 @@ class App extends Component {
 
     save() {
         window.localStorage.setItem('v0', this.input);
-        console.log('save');
     }
 
     restore() {
@@ -485,12 +482,12 @@ class App extends Component {
             <div class="buttons">
                 <div class="left">
                     <button class="movable colored paper button onStopped iconButton" onclick="${this.handlePlay}">
-                        <div class="desktop">Play</div>
-                        <div class="mobile">&#9654;</div>
+                        &#9654;
+                        <span class="desktop">Play</span>
                     </button>
                     <button class="movable colored paper button onPlaying iconButton" onclick="${this.handleStop}">
-                        <div class="desktop">Stop</div>
-                        <div class="mobile">&#9632;</div>
+                        &#9632;
+                        <span class="desktop">Stop</span>
                     </button>
                     <button class="movable paper button onStopped"
                         onclick="${() => {
@@ -523,6 +520,10 @@ class App extends Component {
                     A farther indent indicates a higher pitch, and a
                     longer line means that pitch is held for more beats.
                     Codesynth uses a basic pentatonic scale in A.
+                </p>
+                <p>
+                    On iOS, make sure your device isn't muted. If it is,
+                    Safari may not play any sound.
                 </p>
                 <div class="buttons modal-buttons">
                     <div class="left"></div>
