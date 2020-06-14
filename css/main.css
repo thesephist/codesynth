@@ -1,0 +1,209 @@
+html,
+body {
+    margin: 0;
+    background: #e4e3ea;
+}
+
+html,
+body,
+button,
+textarea,
+pre {
+    font-family: 'Menlo', 'Monaco', 'Courier', monospace;
+}
+
+a {
+    color: #000;
+}
+
+.paper.accent a {
+    color: #fff;
+}
+
+h1 {
+    margin: 1rem 0;
+}
+
+p {
+    line-height: 1.5em;
+}
+
+.app {
+    height: 100vh;
+    width: 70%;
+    max-width: 760px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+.metas,
+.buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.metas {
+    justify-content: flex-start;
+}
+
+.meta {
+    margin-top: 0;
+    margin-bottom: .6em;
+}
+
+.buttons {
+    margin: .6em 0;
+    justify-content: space-between;
+}
+
+.left,
+.right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.button {
+    margin-right: 8px;
+    font-size: 1em;
+}
+
+.right .button {
+    margin-left: 8px;
+    margin-right: 0;
+}
+
+.editor,
+.player {
+    height: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.player {
+    padding: .4em 1em;
+}
+
+.player-lines {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+}
+
+.player-lines .line:first-child {
+    margin-top: 1em;
+}
+
+.player-lines .line:last-child {
+    margin-bottom: 1em;
+}
+
+.line pre {
+    margin: 0;
+    padding: 0 1em;
+}
+
+.line pre:empty{
+    height: 1.6em;
+    width: 100%;
+}
+
+.line.highlighted {
+    background: var(--paper-accent);
+    color: var(--paper-background);
+}
+
+textarea {
+    font-size: 1em;
+    font-weight: normal;
+    resize: none;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    border: 0;
+    padding: .6em 1em .6em calc(1em - 4px);
+    outline: none;
+    border-left: 4px solid transparent;
+    -webkit-overflow-scrolling: touch;
+}
+
+textarea:focus {
+    border-left: 4px solid var(--paper-accent);
+}
+
+textarea,
+pre {
+    line-height: 1.4em;
+}
+
+.button {
+    cursor: pointer;
+}
+
+.playing .onStopped,
+.stopped .onPlaying {
+    pointer-events: none;
+    opacity: .4;
+}
+
+.popup-shade {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, .65);
+}
+
+.popup {
+    position: absolute;
+    width: 480px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.howDoesItWork {
+    padding: .6em 1em 1.4em 1em;
+    overflow: hidden;
+}
+
+.closeButton {
+    float: right;
+}
+
+.mobile {
+    display: none !important;
+}
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+@media only screen and (max-width: 520px) {
+    .popup {
+        width: 92%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .mobile {
+        display: initial !important;
+    }
+    .desktop {
+        display: none !important;
+    }
+}
+
+@media only screen and (max-width: 1130px) {
+    .app {
+        width: 98%;
+    }
+}
