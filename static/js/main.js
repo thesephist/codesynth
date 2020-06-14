@@ -6,10 +6,52 @@ const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const SINGLE_TICK = 150;
 const SPACE_PER_TAB = 8;
+
 // based on 100-char line being 4 bears
 const BEATS_PER_CHAR = 4 / 100;
 
-const DEFAULT_INPUT = `const http = require('http');
+const DEFAULT_INPUT = `export default function App() {
+  return (
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+            <li>
+              <Link to="/users">Users</Link>
+            </li>
+          </ul>
+        </nav>
+
+        {/* A <Switch> looks through its children <Route>s and
+            renders the first one that matches the current URL. */}
+        <Switch>
+          <Route path="/about">
+            <About />
+          </Route>
+          <Route path="/users">
+            <Users />
+          </Route>
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
+  );
+}`;
+
+const EXAMPLES = [{
+    name: 'React Router',
+    value: DEFAULT_INPUT,
+}, {
+    name: 'Node.js server',
+    value: `const http = require('http');
 
 const hostname = '127.0.0.1';
 const port = 8000;
@@ -22,11 +64,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, hostname, () => {
   console.log('Server running!');
-});`;
-
-const EXAMPLES = [{
-    name: 'Node.js server',
-    value: DEFAULT_INPUT,
+});`,
 }, {
     name: 'Go server',
     value: `package main
@@ -42,7 +80,8 @@ func main() {
     })
 
     http.ListenAndServe(":80", nil)
-}`}, {
+}`,
+}, {
     name: 'Haskell Bell numbers',
     value: `bellTri :: [[Integer]]
 bellTri = map snd (iterate (f . uncurry (scanl (+))) (1,[1]))
@@ -58,25 +97,27 @@ main = do
   putStrLn "First 15 Bell numbers"
   mapM_ print (take 15 bell)
   putStrLn "50th Bell number"
-  print (bell !! 49)`}, {
-      name: 'Ink FizzBuzz',
-      value: `std := load('std')
+  print (bell !! 49)`,
+}, {
+    name: 'Ink FizzBuzz',
+    value: `std := load('std')
 
 log := std.log
 range := std.range
 each := std.each
 
 fizzbuzz := n => each(
-	range(1, n + 1, 1)
-	n => [n % 3, n % 5] :: {
-		[0, 0] -> log('FizzBuzz')
-		[0, _] -> log('Fizz')
-		[_, 0] -> log('Buzz')
-		_ -> log(n)
-	}
+        range(1, n + 1, 1)
+        n => [n % 3, n % 5] :: {
+                [0, 0] -> log('FizzBuzz')
+                [0, _] -> log('Fizz')
+                [_, 0] -> log('Buzz')
+                _ -> log(n)
+        }
 )
 
-fizzbuzz(100)`}, {
+fizzbuzz(100)`,
+}, {
     name: 'Rust Mandelbrot set',
     value: `extern crate image;
 extern crate num_complex;
@@ -119,7 +160,8 @@ fn main() {
 
     // Save image
     imgbuf.save("fractal.png").unwrap();
-}`}];
+}`,
+}];
 
 
 const Scale = [
@@ -153,7 +195,7 @@ function gcd(a, b) {
 
 function gcds(numbers) {
     const uniqs = [...new Set(numbers).values()];
-    if (uniqs[0] == 0)  {
+    if (uniqs[0] === 0)  {
         uniqs.shift();
     }
     if (!uniqs.length) {
@@ -190,7 +232,7 @@ function pentatonic(index) {
 
 function times(ss, n) {
     let s = '';
-    while (n --> 0) {
+    while (n -- > 0) {
         s += ss;
     }
     return s;
@@ -204,21 +246,19 @@ function tick(ticks) {
     return new Promise(res => setTimeout(res, SINGLE_TICK * ticks));
 }
 
-/**
- * For the purposes of Codesynth, a "Beat"
- * is of shape
- *
- * {
- *      note: Note, // number
- *      duration: number, // how many ticks?
- * }
- */
+// For the purposes of Codesynth, a "Beat"
+// is of shape
+//
+// {
+//      note: Note, // number
+//      duration: number, // how many ticks?
+// }
 function inputToBeatSequence(input, tabWidth) {
     const lines = input.trim().split('\n');
 
     const beats = [];
     for (const line of lines) {
-        if (line.trim() == '') {
+        if (line.trim() === '') {
             beats.push({
                 note: 0,
                 duration: 1,
@@ -254,7 +294,7 @@ class Player {
             if (this.stopped) {
                 onInterrupt();
                 return;
-            };
+            }
 
             const beat = beats.shift();
             afterBeat(beat);
@@ -295,7 +335,7 @@ class App extends Component {
         this.handleInput = this.handleInput.bind(this);
         this.handlePlay = this.handlePlay.bind(this);
         this.handleStop = this.handleStop.bind(this);
-        this.save = debounce(this.save.bind(this), 800);
+        this.save = debounce(this.save.bind(this), 1000);
 
         this.restore();
         this.setTabWidth();
@@ -303,6 +343,7 @@ class App extends Component {
 
     save() {
         window.localStorage.setItem('v0', this.input);
+        console.log('save');
     }
 
     restore() {
@@ -314,7 +355,7 @@ class App extends Component {
                 this.setInput(DEFAULT_INPUT);
             }
         } catch (e) {
-            console.error(`Error restoring editor state!`, e);
+            console.error('Error restoring editor state!', e);
         }
     }
 
@@ -381,7 +422,7 @@ class App extends Component {
                 <textarea id="cs-code" name="cs-code" cols="30" rows="10"
                     autofocus
                     spellcheck="${false}"
-                    placeholder="type some code..."
+                    placeholder="copy-paste some code..."
                     oninput="${this.handleInput}"
                     value="${this.input}"></textarea>
                 <div class="paper paper-border-right tabWidth">
@@ -397,7 +438,7 @@ class App extends Component {
             if (playerContainer) {
                 const {height} = playerContainer.getBoundingClientRect();
                 const fontSize = window.innerWidth > 370 ? 16 : 13;
-                playerOffset = this.lineIdx * (fontSize * 1.6) - height / 2 + 100;
+                playerOffset = (this.lineIdx * (fontSize * 1.6)) - (height / 2) + 100;
             }
             if (playerOffset < 0) {
                 playerOffset = 0;
@@ -406,8 +447,8 @@ class App extends Component {
             view = jdom`<div class="player paper wrap">
                 <div class="player-lines"
                     style="transform:translateY(-${playerOffset}px)">
-                    ${lines.map((line, i)=> {
-                        return Line(line, this.lineIdx == i)
+                    ${lines.map((line, i) => {
+                        return Line(line, this.lineIdx === i)
                     })}
                 </div>
             </div>`;
@@ -481,7 +522,7 @@ class App extends Component {
                 <p>
                     A farther indent indicates a higher pitch, and a
                     longer line means that pitch is held for more beats.
-                    Codesynth uses a basic pentatonic scale in C.
+                    Codesynth uses a basic pentatonic scale in A.
                 </p>
                 <div class="buttons modal-buttons">
                     <div class="left"></div>
@@ -492,7 +533,7 @@ class App extends Component {
                         </a>
                         <button class="closeButton accent movable paper button"
                             onclick="${() => {
-                                this.showHelp= false;
+                                this.showHelp = false;
                                 this.render();
                             }}">
                             Close

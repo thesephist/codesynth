@@ -1,0 +1,16 @@
+{
+  "name": "codesynth",
+  "version": "0.1.0",
+  "description": "Generate music from your source code",
+  "main": "js/main.js",
+  "repository": "git@github.com:thesephist/codesynth.git",
+  "author": "Linus Lee <linus@thesephist.com>",
+  "license": "MIT",
+  "scripts": {
+      "lint": "eslint static/js/main.js",
+      "deploy": "surge -p ./static --domain https://codesynth.surge.sh"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0"
+  }
+}
