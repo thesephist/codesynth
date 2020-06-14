@@ -2,6 +2,8 @@ html,
 body {
     margin: 0;
     background: #e4e3ea;
+    /* player scrolling assumes 16px = rem */
+    font-size: 16px;
 }
 
 html,
@@ -86,15 +88,13 @@ p {
 
 .player {
     padding: .4em 1em;
+    overflow: hidden;
 }
 
 .player-lines {
-    height: 100%;
     width: 100%;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    -webkit-overflow-scrolling: touch;
 }
 
 .player-lines .line:first-child {
@@ -107,12 +107,11 @@ p {
 
 .line pre {
     margin: 0;
+    box-sizing: border-box;
     padding: 0 1em;
-}
-
-.line pre:empty{
     height: 1.6em;
     width: 100%;
+    overflow: hidden;
 }
 
 .line.highlighted {
@@ -151,6 +150,20 @@ pre {
 .stopped .onPlaying {
     pointer-events: none;
     opacity: .4;
+}
+
+.playing,
+.editor {
+    position: relative;
+}
+
+.tabWidth {
+    font-size: .8em;
+    position: absolute;
+    color: var(--paper-accent);
+    font-weight: bold;
+    right: 12px;
+    bottom: 12px;
 }
 
 .popup-shade {

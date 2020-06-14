@@ -1,18 +1,10 @@
-/**
- * Bigger indents in code -> higher pitch
- *  Longer source lines -> longer notes
- *
- * We can use the pentatonic scale for tab
- *  indentation to make things sound better.
- */
-
 const {
     Component,
 } = window.Torus;
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 
-const SINGLE_TICK = 200;
+const SINGLE_TICK = 150;
 const SPACE_PER_TAB = 8;
 // based on 100-char line being 4 bears
 const BEATS_PER_CHAR = 4 / 100;
@@ -107,7 +99,7 @@ function times(ss, n) {
 }
 
 function tabToSpaces(s) {
-    return s.replace(/\t/, times(' ', SPACE_PER_TAB));
+    return s.replace(/\t/g, times(' ', SPACE_PER_TAB));
 }
 
 function tick(ticks) {
@@ -116,7 +108,9 @@ function tick(ticks) {
 
 /**
  * For the purposes of Codesynth, a "Beat"
- * is of shape {
+ * is of shape
+ *
+ * {
  *      note: Note, // number
  *      duration: number, // how many ticks?
  * }
@@ -126,13 +120,19 @@ function inputToBeatSequence(input, tabWidth) {
 
     const beats = [];
     for (const line of lines) {
-        const indents = (line.length - line.trimStart(' ').length) / tabWidth;
-        const duration = ~~(line.trim().length * BEATS_PER_CHAR) + 1;
-
-        beats.push({
-            note: pentatonic(indents),
-            duration,
-        })
+        if (line.trim() == '') {
+            beats.push({
+                note: 0,
+                duration: 1,
+            });
+        } else {
+            const indents = (line.length - line.trimStart(' ').length) / tabWidth;
+            const duration = ~~(line.trim().length * BEATS_PER_CHAR) + 1;
+            beats.push({
+                note: pentatonic(indents),
+                duration,
+            });
+        }
     }
 
     return beats;
@@ -276,17 +276,33 @@ class App extends Component {
         let view = null;
         if (this.player === null) {
             view = jdom`<div class="editor paper wrap">
-            <textarea id="cs-code" name="cs-code" cols="30" rows="10"
-                autofocus
-                spellcheck="${false}"
-                placeholder="type some code..."
-                oninput="${this.handleInput}"
-                value="${this.input}"></textarea>
+                <textarea id="cs-code" name="cs-code" cols="30" rows="10"
+                    autofocus
+                    spellcheck="${false}"
+                    placeholder="type some code..."
+                    oninput="${this.handleInput}"
+                    value="${this.input}"></textarea>
+                <div class="paper paper-border-right tabWidth">
+                    tab = ${this.tabWidth} spaces
+                </div>
             </div>`;
         } else {
             const lines = this.input.trim().split('\n');
+
+            // scroll to line visible in player
+            const playerContainer = this.node.querySelector('.player');
+            let playerOffset = 0;
+            if (playerContainer) {
+                const {height} = playerContainer.getBoundingClientRect();
+                playerOffset = this.lineIdx * 25.6 - height / 2 + 100;
+            }
+            if (playerOffset < 0) {
+                playerOffset = 0;
+            }
+
             view = jdom`<div class="player paper wrap">
-                <div class="player-lines">
+                <div class="player-lines"
+                    style="transform:translateY(-${playerOffset}px)">
                     ${lines.map((line, i)=> {
                         return Line(line, this.lineIdx == i)
                     })}
@@ -339,6 +355,11 @@ class App extends Component {
                     A farther indent indicates a higher pitch, and a
                     longer line means that pitch is held for more beats.
                     Codesynth uses a basic pentatonic scale in C.
+                </p>
+                <p>
+                    Codesynth is
+                    <a href="https://github.com/thesephist/codesynth"
+                        target="_blank">open-source on GitHub</a>.
                 </p>
                 <button class="closeButton accent movable paper button"
                     onclick="${() => {
