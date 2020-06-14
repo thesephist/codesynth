@@ -12,7 +12,7 @@ body {
     box-sizing: border-box;
     border: 0;
     outline: none;
-    padding: .4em 1em;
+    padding: .5em 1em;
     border-radius: 0;
     text-decoration: none;
 }
@@ -24,8 +24,11 @@ body {
 .paper.movable {
     cursor: pointer;
     transition: transform .15s, box-shadow .15s, background .15s;
-    color: var(--paper-accent);
     font-weight: bold;
+}
+
+.paper.colored {
+    color: var(--paper-accent);
 }
 
 .paper.movable:hover {

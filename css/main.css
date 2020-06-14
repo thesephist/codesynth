@@ -139,7 +139,7 @@ textarea:focus {
 
 textarea,
 pre {
-    line-height: 1.4em;
+    line-height: 1.6em;
 }
 
 .button {
@@ -183,8 +183,53 @@ pre {
     transform: translate(-50%, -50%);
 }
 
-.howDoesItWork {
+.buttons.modal-buttons {
+    padding-right: 8px;
+    margin-bottom: 0;
+}
+
+.howDoesItWork,
+.examples {
     padding: .6em 1em 1.4em 1em;
+    overflow: hidden;
+}
+
+.examples {
+    height: 80vh;
+    max-height: 1100px;
+    display: flex;
+    flex-direction: column;
+}
+
+.examples-title {
+    margin-left: 8px;
+}
+
+.examples-list-container {
+    box-sizing: border-box;
+    padding: 8px;
+    height: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow-y: auto;
+}
+
+ul.examples-list {
+    padding-left: 0;
+    margin: -6px 0;
+}
+
+.examples-item {
+    margin-bottom: 12px;
+}
+
+.examples-list .name {
+    font-weight: bold;
+    color: var(--paper-accent);
+}
+
+.examples-list .value {
+    font-size: .7em;
     overflow: hidden;
 }
 
@@ -198,6 +243,13 @@ pre {
 
 .no-wrap {
     white-space: nowrap;
+}
+
+@media only screen and (max-width: 370px) {
+    html,
+    body {
+        font-size: 13px;
+    }
 }
 
 @media only screen and (max-width: 520px) {

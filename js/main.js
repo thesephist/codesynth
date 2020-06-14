@@ -12,17 +12,115 @@ const BEATS_PER_CHAR = 4 / 100;
 const DEFAULT_INPUT = `const http = require('http');
 
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = 8000;
 
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World');
+  res.end('Hello, World!');
 });
 
 server.listen(port, hostname, () => {
-  console.log('Server running.')
+  console.log('Server running!');
 });`;
+
+const EXAMPLES = [{
+    name: 'Node.js server',
+    value: DEFAULT_INPUT,
+}, {
+    name: 'Go server',
+    value: `package main
+
+import (
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintf(w, "Hello, World! Requested path: %s\\n", r.URL.Path)
+    })
+
+    http.ListenAndServe(":80", nil)
+}`}, {
+    name: 'Haskell Bell numbers',
+    value: `bellTri :: [[Integer]]
+bellTri = map snd (iterate (f . uncurry (scanl (+))) (1,[1]))
+  where
+    f xs = (last xs,  xs)
+
+bell :: [Integer]
+bell = map head bellTri
+
+main = do
+  putStrLn "First 10 rows of Bell's Triangle"
+  mapM_ print (take 10 bellTri)
+  putStrLn "First 15 Bell numbers"
+  mapM_ print (take 15 bell)
+  putStrLn "50th Bell number"
+  print (bell !! 49)`}, {
+      name: 'Ink FizzBuzz',
+      value: `std := load('std')
+
+log := std.log
+range := std.range
+each := std.each
+
+fizzbuzz := n => each(
+	range(1, n + 1, 1)
+	n => [n % 3, n % 5] :: {
+		[0, 0] -> log('FizzBuzz')
+		[0, _] -> log('Fizz')
+		[_, 0] -> log('Buzz')
+		_ -> log(n)
+	}
+)
+
+fizzbuzz(100)`}, {
+    name: 'Rust Mandelbrot set',
+    value: `extern crate image;
+extern crate num_complex;
+
+use std::fs::File;
+use num_complex::Complex;
+
+fn main() {
+    let max_iterations = 256u16;
+    let img_side = 800u32;
+    let cxmin = -2f32;
+    let cxmax = 1f32;
+    let cymin = -1.5f32;
+    let cymax = 1.5f32;
+    let scalex = (cxmax - cxmin) / img_side as f32;
+    let scaley = (cymax - cymin) / img_side as f32;
+
+    // Create a new ImgBuf
+    let mut imgbuf = image::ImageBuffer::new(img_side, img_side);
+
+    // Calculate for each pixel
+    for (x, y, pixel) in imgbuf.enumerate_pixels_mut() {
+        let cx = cxmin + x as f32 * scalex;
+        let cy = cymin + y as f32 * scaley;
+
+        let c = Complex::new(cx, cy);
+        let mut z = Complex::new(0f32, 0f32);
+
+        let mut i = 0;
+        for t in 0..max_iterations {
+            if z.norm() > 2.0 {
+                break;
+            }
+            z = z * z + c;
+            i = t;
+        }
+
+        *pixel = image::Luma([i as u8]);
+    }
+
+    // Save image
+    imgbuf.save("fractal.png").unwrap();
+}`}];
+
 
 const Scale = [
     440,
@@ -189,7 +287,8 @@ class App extends Component {
         this.input = '';
         this.tabWidth = 2;
         this.lineIdx = -1;
-        this.showPopup = false;
+        this.showHelp = false;
+        this.showExamples = false;
 
         this.player = null;
 
@@ -210,9 +309,9 @@ class App extends Component {
         try {
             const input = window.localStorage.getItem('v0');
             if (input) {
-                this.input = input;
+                this.setInput(input);
             } else {
-                this.input = DEFAULT_INPUT;
+                this.setInput(DEFAULT_INPUT);
             }
         } catch (e) {
             console.error(`Error restoring editor state!`, e);
@@ -221,8 +320,11 @@ class App extends Component {
 
     handleInput(evt) {
         const input = evt.target.value;
-        this.input = tabToSpaces(input);
+        this.setInput(input);
+    }
 
+    setInput(input) {
+        this.input = tabToSpaces(input);
         this.setTabWidth();
         this.render();
 
@@ -294,7 +396,8 @@ class App extends Component {
             let playerOffset = 0;
             if (playerContainer) {
                 const {height} = playerContainer.getBoundingClientRect();
-                playerOffset = this.lineIdx * 25.6 - height / 2 + 100;
+                const fontSize = window.innerWidth > 370 ? 16 : 13;
+                playerOffset = this.lineIdx * (fontSize * 1.6) - height / 2 + 100;
             }
             if (playerOffset < 0) {
                 playerOffset = 0;
@@ -310,14 +413,29 @@ class App extends Component {
             </div>`;
         }
 
+        const Example = ({name, value}) => {
+            return jdom`<li class="examples-item movable paper paper-border-left"
+                onclick="${() => {
+                    this.setInput(value);
+                    this.showExamples = false;
+                    this.render();
+                }}">
+                <div class="name">${name}</div>
+                <div class="value">
+                    <pre>${value.split('\n').slice(0, 6).join('\n')}</pre>
+                    <pre>...</pre>
+                </div>
+            </li>`;
+        }
+
         return jdom`<div class="app ${this.player ? 'playing' : 'stopped'}">
             <header class="accent paper">
                 <h1>Codesynth</h1>
                 <div class="metas">
                     <p class="meta">
                         Generate music from your source code.
-                        <a href="#" class="no-wrap" onclick="${() => {
-                            this.showPopup = true;
+                        <a href="#" class="no-wrap help-link" onclick="${() => {
+                            this.showHelp = true;
                             this.render();
                         }}">How does it work?</a>
                     </p>
@@ -325,24 +443,33 @@ class App extends Component {
             </header>
             <div class="buttons">
                 <div class="left">
-                    <button class="movable paper button onStopped" onclick="${this.handlePlay}">
-                        Play
+                    <button class="movable colored paper button onStopped iconButton" onclick="${this.handlePlay}">
+                        <div class="desktop">Play</div>
+                        <div class="mobile">&#9654;</div>
                     </button>
-                    <button class="movable paper button onPlaying" onclick="${this.handleStop}">
-                        Stop
+                    <button class="movable colored paper button onPlaying iconButton" onclick="${this.handleStop}">
+                        <div class="desktop">Stop</div>
+                        <div class="mobile">&#9632;</div>
+                    </button>
+                    <button class="movable paper button onStopped"
+                        onclick="${() => {
+                            this.showExamples = true;
+                            this.render();
+                        }}">
+                        Examples
                     </button>
                 </div>
                 <div class="right">
                     <a class="movable paper paper-border-right button"
                         href="https://thesephist.com"
                         target="_blank">
-                        <span class="desktop">Project</span>
-                        by @thesephist
+                        <span class="desktop">Project by @thesephist</span>
+                        <div class="mobile">by Linus</div>
                     </a>
                 </div>
             </div>
             ${view}
-            ${this.showPopup ? Popup(jdom`<div class="howDoesItWork">
+            ${this.showHelp ? Popup(jdom`<div class="howDoesItWork">
                 <p>
                     <strong>How does Codesynth work?</strong>
                 </p>
@@ -356,18 +483,44 @@ class App extends Component {
                     longer line means that pitch is held for more beats.
                     Codesynth uses a basic pentatonic scale in C.
                 </p>
-                <p>
-                    Codesynth is
-                    <a href="https://github.com/thesephist/codesynth"
-                        target="_blank">open-source on GitHub</a>.
+                <div class="buttons modal-buttons">
+                    <div class="left"></div>
+                    <div class="right">
+                        <a class="movable colored paper button" href="https://github.com/thesephist/codesynth"
+                            target="_blank">
+                            See on GitHub
+                        </a>
+                        <button class="closeButton accent movable paper button"
+                            onclick="${() => {
+                                this.showHelp= false;
+                                this.render();
+                            }}">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>`) : null}
+            ${this.showExamples ? Popup(jdom`<div class="examples">
+                <p class="examples-title">
+                    <strong>Example beats</strong>
                 </p>
-                <button class="closeButton accent movable paper button"
-                    onclick="${() => {
-                        this.showPopup = false;
-                        this.render();
-                    }}">
-                    Close
-                </button>
+                <div class="examples-list-container">
+                    <ul class="examples-list">
+                        ${EXAMPLES.map(Example)}
+                    </ul>
+                </div>
+                <div class="buttons modal-buttons">
+                    <div class="left"></div>
+                    <div class="right">
+                        <button class="closeButton accent movable paper button"
+                            onclick="${() => {
+                                this.showExamples = false;
+                                this.render();
+                            }}">
+                            Close
+                        </button>
+                    </div>
+                </div>
             </div>`) : null}
         </div>`;
     }
