@@ -49,6 +49,10 @@ body {
     color: var(--paper-background);
 }
 
+.paper.movable.accent:active {
+    color: var(--paper-background);
+}
+
 .paper.paper-border-left {
     border-left: var(--paper-border-width) solid var(--paper-accent);
 }
