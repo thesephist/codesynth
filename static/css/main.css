@@ -26,9 +26,19 @@ h1 {
     margin: 1rem 0;
 }
 
+h1 a {
+    text-decoration: none;
+}
+
+h1 a:hover {
+    text-decoration: underline;
+}
+
 p {
     line-height: 1.5em;
 }
+
+/* APP LAYOUT */
 
 .app {
     height: 100vh;
@@ -142,10 +152,6 @@ pre {
     line-height: 1.6em;
 }
 
-.button {
-    cursor: pointer;
-}
-
 .playing .onStopped,
 .stopped .onPlaying {
     pointer-events: none;
@@ -237,12 +243,12 @@ ul.examples-list {
     float: right;
 }
 
-.mobile {
-    display: none !important;
-}
-
 .no-wrap {
     white-space: nowrap;
+}
+
+.mobile {
+    display: none !important;
 }
 
 @media only screen and (max-width: 370px) {

@@ -422,7 +422,8 @@ class App extends Component {
                     placeholder="copy-paste some code..."
                     oninput="${this.handleInput}"
                     value="${this.input}"></textarea>
-                <div class="paper paper-border-right tabWidth">
+                <div class="paper paper-border-right tabWidth"
+                    title="Codesynth inferred that a tab is ${this.tabWidth} spaces in this snippet">
                     tab = ${this.tabWidth} spaces
                 </div>
             </div>`;
@@ -468,7 +469,9 @@ class App extends Component {
 
         return jdom`<div class="app ${this.player ? 'playing' : 'stopped'}">
             <header class="accent paper">
-                <h1>Codesynth</h1>
+                <h1>
+                    <a href="/">Codesynth</a>
+                </h1>
                 <div class="metas">
                     <p class="meta">
                         Generate music from your source code.
@@ -481,15 +484,20 @@ class App extends Component {
             </header>
             <div class="buttons">
                 <div class="left">
-                    <button class="movable colored paper button onStopped iconButton" onclick="${this.handlePlay}">
+                    <button class="movable colored paper button onStopped iconButton"
+                        title="Play track"
+                        onclick="${this.handlePlay}">
                         &#9654;
                         <span class="desktop">Play</span>
                     </button>
-                    <button class="movable colored paper button onPlaying iconButton" onclick="${this.handleStop}">
+                    <button class="movable colored paper button onPlaying iconButton"
+                        title="Stop playing"
+                        onclick="${this.handleStop}">
                         &#9632;
                         <span class="desktop">Stop</span>
                     </button>
                     <button class="movable paper button onStopped"
+                        title="Show example code snippets"
                         onclick="${() => {
                             this.showExamples = true;
                             this.render();
@@ -533,6 +541,7 @@ class App extends Component {
                             See on GitHub
                         </a>
                         <button class="closeButton accent movable paper button"
+                            title="Close popup"
                             onclick="${() => {
                                 this.showHelp = false;
                                 this.render();
@@ -555,6 +564,7 @@ class App extends Component {
                     <div class="left"></div>
                     <div class="right">
                         <button class="closeButton accent movable paper button"
+                            title="Close popup"
                             onclick="${() => {
                                 this.showExamples = false;
                                 this.render();
