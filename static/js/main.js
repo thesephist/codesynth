@@ -379,6 +379,10 @@ class App extends Component {
     }
 
     async handlePlay() {
+        if (this.player) {
+            return;
+        }
+
         const beats = inputToBeatSequence(this.input, this.tabWidth);
 
         let interrupted = false;
@@ -396,6 +400,10 @@ class App extends Component {
     }
 
     handleStop() {
+        if (!this.player) {
+            return;
+        }
+
         this.player.stop();
         this._cleanup();
     }
@@ -454,6 +462,7 @@ class App extends Component {
 
         const Example = ({name, value}) => {
             return jdom`<li class="examples-item movable paper paper-border-left"
+                tabIndex="1"
                 onclick="${() => {
                     this.setInput(value);
                     this.showExamples = false;
